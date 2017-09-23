@@ -12,10 +12,10 @@ let make _children => {
   ...component,
   render: fun _self => {
 
-    let color: hsla = (50,70,12,0.5);
+    let color: hsla = (50,100,66,0.5);
 
     let message = {|
-      Yo it me the long string
+      A ReasonML colour picker. Only 212kb of minified JS!
     |};
   
     <div className="App">

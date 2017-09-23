@@ -19,10 +19,6 @@ let make value::(value: hsla) size::(size: int)=15 _children => {
       ^ intToPercent l ^ ", "
       ^ Js.Float.toString a ^ ")";
 
-    Js.log color;
-
-    /* let color = "red"; */
-
     let size = Js.Int.toString size ^ "px";
 
     let style = (ReactDOMRe.Style.make
