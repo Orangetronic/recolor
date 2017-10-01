@@ -1,6 +1,7 @@
 type hsla   = (int, int, int, float);
 
 type actions =
+  | Hex Color.hex
   | Hue int
   | Saturation int
   | Lightness int
@@ -14,7 +15,11 @@ type state = {
 };
 
 let component = ReasonReact.reducerComponent "ColourPicker";
+
 let getValueFromReactEvent e => (ReactDOMRe.domElementToObj (ReactEventRe.Form.target e))##value;
+
+/* 😜 */
+let echo = ReasonReact.stringToElement;
 
 let hslaFromState state => (state.hue, state.saturation, state.lightness, state.alpha);
 
@@ -61,8 +66,9 @@ let getAlphaPreviewStyle value::(value: hsla) => {
   ReactDOMRe.Style.make backgroundImage::gradient ()
 };
 
-/* 😜 */
-let echo = ReasonReact.stringToElement;
+type rgb  = Color.rgb;
+type hsl  = Color.hsl;
+
 
 let make value::(value: hsla) _children => {
 
@@ -81,6 +87,10 @@ let make value::(value: hsla) _children => {
   reducer: fun action state => {
 
     switch action {
+    | Hex        newVal => 
+      let rgb = Color.hexToRGB newVal;
+      let (h, s, l) = Color.rgbToHSL rgb;
+      ReasonReact.Update { hue: h, saturation: s, lightness: l, alpha: 1.0 }
     | Hue        newVal => ReasonReact.Update { ...state, hue : newVal }
     | Saturation newVal => ReasonReact.Update { ...state, saturation: newVal }
     | Lightness  newVal => ReasonReact.Update { ...state, lightness: newVal }
@@ -91,10 +101,10 @@ let make value::(value: hsla) _children => {
 
   render: fun self => {
 
-    let hslaVal = hslaFromState self.state;
-
+    let hslaVal  = hslaFromState self.state;
     let (h,s,l,a) = hslaToString value::hslaVal;
 
+    let handleHex        e => Hex        (getValueFromReactEvent e);
     let handleHue        e => Hue        (getValueFromReactEvent e);
     let handleSaturation e => Saturation (getValueFromReactEvent e);
     let handleLightness  e => Lightness  (getValueFromReactEvent e);
@@ -109,6 +119,14 @@ let make value::(value: hsla) _children => {
     let alphaPreviewStyle      = getAlphaPreviewStyle      value::hslaVal;
     
     <div className="color-picker">
+    <div className="hex-group input-group">
+        <label htmlFor="hex">(echo "hex:")</label>
+        <input
+          id="hex"
+          _type="text"
+          onChange=(self.reduce handleHex)
+        />
+      </div>
       <div className="hue-group input-group">
         <label htmlFor="hue">(echo "hue:")</label>
         <input
@@ -154,6 +172,7 @@ let make value::(value: hsla) _children => {
         />
         <div className="preview" style=alphaPreviewStyle />
       </div>
+
       <div>(echo values)</div>
 
       <Swatch value=hslaVal size=350 />

@@ -12,7 +12,7 @@ let make _children => {
   ...component,
   render: fun _self => {
 
-    let color: hsla = (50,100,66,0.5);
+    let color: hsla = (50,100,66,1.0);
 
     let message = {|
       A ReasonML colour picker. Only 212kb of minified JS!
