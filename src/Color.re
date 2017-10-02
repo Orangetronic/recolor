@@ -97,6 +97,17 @@ let rangeTo100 (value: int) (base: int) : int => {
   let v = value * 1000;
   let v = v / base;
   let v = v * 100;
+  /* scale back down again */
+  let v = v / 1000;
+  v
+};
+
+let rangeTo255 (value: int) (base: int) : int => {
+  /* scale up — we're operating on ints */
+  let v = value * 1000;
+  let v = v / base;
+  let v = v * 255;
+  /* scale back down again */
   let v = v / 1000;
   v
 };
@@ -134,9 +145,42 @@ let rgbToHSL (rgb: rgb) : hsl => {
   (h, s, l)
 };
 
+let hue2rgb p q t => {
+  Js.log p 
+  let t =
+    if      (t < 0)   { t + 100 }
+    else if (t > 100) { t - 100 }
+    else              { t };
+
+  let result =
+    if      (t < 120) { p + (q - t) * 6 * t }
+    else if (t < 180) { q }
+    else if (t < 270) { p + (q - p) * (270 - t) * 6 }
+    else              { p };
+
+  result
+};
 let hslToRGB (hsl : hsl) : rgb => {
-  
-  let (h, s, l) = hsl;
+
+  let (h, s , l) = hsl;
+
+  let mono = s == 0;
+
+  let rgb = switch mono {
+  | true =>
+    let n = rangeTo255 l 100;
+    (n,n,n)
+  | false =>
+    let q = l < 50 ? l * (1 + s) : l + s - l * s;
+    let p = 2 * l - q;
+    let r = hue2rgb p q (h + 120);
+    let g = hue2rgb p q h;
+    let b = hue2rgb p q (h - 120);
+    (r, g, b)
+  };
+
+  rgb
+};
 
 
 /* 
@@ -163,5 +207,3 @@ let hslToRGB (hsl : hsl) : rgb => {
     }
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]; */
-    (0,0,0)
-};
