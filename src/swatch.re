@@ -25,6 +25,9 @@ let make value::(value: hsla) size::(size: int)=15 _children => {
       backgroundColor::color 
       width::size
       height::size
+      borderColor::"black"
+      borderWidth::"1px"
+      borderStyle::"solid"
       ()
     );
 
