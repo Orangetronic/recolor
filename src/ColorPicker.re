@@ -18,10 +18,14 @@ let component = ReasonReact.reducerComponent "ColourPicker";
 
 let getValueFromReactEvent e => (ReactDOMRe.domElementToObj (ReactEventRe.Form.target e))##value;
 
+external parseInt : 'a => int = "parseInt" [@@bs.val];
+let getIntValueFromReactEvent e => parseInt (getValueFromReactEvent e);
+
+
 /* 😜 */
 let echo = ReasonReact.stringToElement;
 
-let hslaFromState state => (state.hue, state.saturation, state.lightness, state.alpha);
+let hslaFromState (state: state) : hsla => (state.hue, state.saturation, state.lightness, state.alpha);
 
 let hslaToString value::(value: hsla) : (string, string, string, string) => {
   let (h,s,l,a) = value;
@@ -101,13 +105,20 @@ let make value::(value: hsla) _children => {
 
   render: fun self => {
 
+    
     let hslaVal  = hslaFromState self.state;
+
+    let (h,s,l, _) = hslaVal;
+    
+    Js.log "hsl to rgb";
+    Js.log (Color.hslToRGB (h,s,l));
+
     let (h,s,l,a) = hslaToString value::hslaVal;
 
     let handleHex        e => Hex        (getValueFromReactEvent e);
-    let handleHue        e => Hue        (getValueFromReactEvent e);
-    let handleSaturation e => Saturation (getValueFromReactEvent e);
-    let handleLightness  e => Lightness  (getValueFromReactEvent e);
+    let handleHue        e => Hue        (getIntValueFromReactEvent e);
+    let handleSaturation e => Saturation (getIntValueFromReactEvent e);
+    let handleLightness  e => Lightness  (getIntValueFromReactEvent e);
     let handleAlpha      e => Alpha      (getValueFromReactEvent e);
 
     let values = "hsla(" ^ h ^ ", " ^ s ^ "%, " ^ l ^ "%, " ^ a ^ ")";
@@ -117,6 +128,7 @@ let make value::(value: hsla) _children => {
     let saturationPreviewStyle = getSaturationPreviewStyle value::hslaVal;
     let lightnessPreviewStyle  = getLightnessPreviewStyle  value::hslaVal;
     let alphaPreviewStyle      = getAlphaPreviewStyle      value::hslaVal;
+
     
     <div className="color-picker">
     <div className="hex-group input-group">
@@ -131,7 +143,6 @@ let make value::(value: hsla) _children => {
         <label htmlFor="hue">(echo "hue:")</label>
         <input
           id="hue"
-          min=0
           max="360"
           _type="range" 
           value=h
