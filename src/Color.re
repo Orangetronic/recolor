@@ -146,17 +146,29 @@ let rgbToHSL (rgb: rgb) : hsl => {
 };
 
 let hue2rgb p q t => {
-  Js.log p 
+
+  /* Js.log "p q t";
+  Js.log p;
+  Js.log q;
+  Js.log t; */
+
+
   let t =
     if      (t < 0)   { t + 100 }
     else if (t > 100) { t - 100 }
     else              { t };
+
+  /* Js.log "t";
+  Js.log t; */
 
   let result =
     if      (t < 120) { p + (q - t) * 6 * t }
     else if (t < 180) { q }
     else if (t < 270) { p + (q - p) * (270 - t) * 6 }
     else              { p };
+
+  /* Js.log "result";
+  Js.log result; */
 
   result
 };
@@ -171,11 +183,28 @@ let hslToRGB (hsl : hsl) : rgb => {
     let n = rangeTo255 l 100;
     (n,n,n)
   | false =>
-    let q = l < 50 ? l * (1 + s) : l + s - l * s;
-    let p = 2 * l - q;
-    let r = hue2rgb p q (h + 120);
-    let g = hue2rgb p q h;
-    let b = hue2rgb p q (h - 120);
+
+    let c = (100 - (Math.modulus (2 * l - 100))) * s / 100;
+
+    let x = c * (100 - (Math.modulus (h * 100 / 60 mod 200 - 100))) / 100;
+    let m = l - c / 2;
+
+    let rgb =
+      if      (h < 60)  {(c, x, 0)}
+      else if (h < 120) {(x, c, 0)}
+      else if (h < 180) {(0, c, x)}
+      else if (h < 240) {(0, x, c)}
+      else if (h < 300) {(x, 0, c)}
+      else              {(c, 0, x)};
+
+    let (r,g,b) = rgb;
+    let (r,g,b) = (r + m, g + m, b + m);
+    let (r,g,b) = (
+      r * 255 / 100, 
+      g * 255 / 100,
+      b * 255 / 100
+    );
+
     (r, g, b)
   };
 
