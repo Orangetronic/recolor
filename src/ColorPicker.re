@@ -1,4 +1,5 @@
-type hsla   = (int, int, int, float);
+type hsla   = Color.hsla;
+type rgba   = Color.rgba;
 
 type actions =
   | Hex Color.hex
@@ -36,6 +37,17 @@ let hslaToString value::(value: hsla) : (string, string, string, string) => {
   let a = Js.Float.toString a;
 
   (h,s,l,a);
+};
+
+let rgbaToString value::(value: rgba) : (string, string, string, string) => {
+  let (r,g,b,a) = value;
+  
+    let r = Js.Int.toString   r;
+    let g = Js.Int.toString   g;
+    let b = Js.Int.toString   b;
+    let a = Js.Float.toString a;
+  
+  (r,g,b,a);
 };
 
 let getHuePreviewStyle value::(value: hsla) => {
@@ -81,10 +93,10 @@ let make value::(value: hsla) _children => {
   initialState : fun () => {
     let (h,s,l,a) = value;
     {
-      hue: h,
-      saturation: s,
-      lightness: l,
-      alpha: a
+      hue        : h,
+      saturation : s,
+      lightness  : l,
+      alpha      : a
     }
   },
 
@@ -108,10 +120,24 @@ let make value::(value: hsla) _children => {
     
     let hslaVal  = hslaFromState self.state;
 
-    let (h,s,l, _) = hslaVal;
-    
-    Js.log "hsl to rgb";
-    Js.log (Color.hslToRGB (h,s,l));
+    let (h,s,l,a) = hslaVal;
+    let (r,g,b) = Color.hslToRGB (h,s,l);
+
+    let rgbColor = "rgba("
+    ^ Js.Int.toString r   ^ ", "
+    ^ Js.Int.toString g   ^ ", "
+    ^ Js.Int.toString b   ^ ", "
+    ^ Js.Float.toString a ^ ")";
+
+    let rgbStyle = (ReactDOMRe.Style.make
+      backgroundColor::rgbColor
+      width::"50px"
+      height::"50px"
+      borderColor::"black"
+      borderWidth::"1px"
+      borderStyle::"solid"
+      ()
+    );
 
     let (h,s,l,a) = hslaToString value::hslaVal;
 
@@ -121,7 +147,7 @@ let make value::(value: hsla) _children => {
     let handleLightness  e => Lightness  (getIntValueFromReactEvent e);
     let handleAlpha      e => Alpha      (getValueFromReactEvent e);
 
-    let values = "hsla(" ^ h ^ ", " ^ s ^ "%, " ^ l ^ "%, " ^ a ^ ")";
+    let values    = "hsla(" ^ h ^ ", " ^ s ^ "%, " ^ l ^ "%, " ^ a ^ ")";
 
     let huePreviewStyle = getHuePreviewStyle value:: hslaVal; 
 
@@ -131,7 +157,8 @@ let make value::(value: hsla) _children => {
 
     
     <div className="color-picker">
-    <div className="hex-group input-group">
+    <div className="dark-bg">
+      <div className="hex-group input-group">
         <label htmlFor="hex">(echo "hex:")</label>
         <input
           id="hex"
@@ -184,8 +211,10 @@ let make value::(value: hsla) _children => {
         <div className="preview" style=alphaPreviewStyle />
       </div>
 
-      <div>(echo values)</div>
-
+      <div className="value-text text-left pad">(echo values)</div>
+      <div className="value-text text-left pad">(echo rgbColor)</div>
+      
+      </div>
       <Swatch value=hslaVal size=350 />
     </div>
   }
