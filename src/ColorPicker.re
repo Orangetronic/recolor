@@ -129,16 +129,6 @@ let make value::(value: hsla) _children => {
     ^ Js.Int.toString b   ^ ", "
     ^ Js.Float.toString a ^ ")";
 
-    let rgbStyle = (ReactDOMRe.Style.make
-      backgroundColor::rgbColor
-      width::"50px"
-      height::"50px"
-      borderColor::"black"
-      borderWidth::"1px"
-      borderStyle::"solid"
-      ()
-    );
-
     let (h,s,l,a) = hslaToString value::hslaVal;
 
     let handleHex        e => Hex        (getValueFromReactEvent e);
